@@ -3,7 +3,6 @@ package org.compra.controller;
 import org.compra.model.Compra;
 import org.compra.services.CompraService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -71,5 +70,11 @@ public class CompraController {
             return new ResponseEntity<>(c, HttpStatus.OK);
         }
         return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @GetMapping("/productoMasVendido")
+    public ResponseEntity<Long> listarProductosMasVendido() {
+        Long p=compraService.productoMasVendido();
+        return new ResponseEntity<>(p, HttpStatus.OK);
     }
 }

@@ -3,7 +3,6 @@ package org.compra.services;
 import org.compra.model.Compra;
 import org.compra.repository.CompraRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -57,5 +56,9 @@ public class CompraService {
             return compra;
         }
         return null;
+    }
+
+    public Long productoMasVendido() {
+        return compraRepository.productoMasVendido();
     }
 }
