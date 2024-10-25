@@ -27,9 +27,33 @@ public class CompraService {
     }
 
     public Compra save(Compra compra) {
-        String apiDeValen = "http://localhost:8065/{"+compra.getIdProducto()+"}";
+        String apiDeValen = "http://localhost:8070/productos/"+compra.getIdProducto();
         if(restTemplate.getForEntity(apiDeValen, String.class)!=null){
             return compraRepository.save(compra);
+        }
+        return null;
+    }
+
+
+    public Compra updateCompra(Long idProducto, Long idCompra, Compra compra) {
+        String apiDeValen = "http://localhost:8070/productos/"+compra.getIdProducto();
+        if(restTemplate.getForEntity(apiDeValen, String.class)!=null){
+            Compra c=compraRepository.findById(idProducto, idCompra);
+            if(c!=null) {
+                c.setCantidad(compra.getCantidad());
+                c.setFecha(compra.getFecha());
+                c.setIdProducto(compra.getIdProducto());
+                c.setIdCliente(compra.getIdCliente());
+                return compraRepository.save(c);
+            }}
+        return null;
+    }
+
+    public Compra deleteCompra(Long idProducto, Long idCliente) {
+        Compra compra = compraRepository.findById(idProducto, idCliente);
+        if(compra!=null) {
+            compraRepository.delete(compra);
+            return compra;
         }
         return null;
     }
