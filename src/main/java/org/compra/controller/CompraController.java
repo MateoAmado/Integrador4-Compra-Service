@@ -56,8 +56,8 @@ public class CompraController {
     }
 
     @PutMapping("/{idProducto}/{idCliente}")
-    public ResponseEntity<Compra> updateCompra(@PathVariable Long idProducto, @PathVariable Long idCompra, @RequestBody Compra compra){
-        Compra c=compraService.updateCompra(idProducto, idCompra, compra);
+    public ResponseEntity<Compra> updateCompra(@PathVariable Long idCliente, @PathVariable Long idProducto, @PathVariable Long idCompra, @RequestBody Compra compra){
+        Compra c=compraService.updateCompra(idCliente, idProducto, idCompra, compra);
         if(c!=null){
             return new ResponseEntity<>(c, HttpStatus.OK);
         }

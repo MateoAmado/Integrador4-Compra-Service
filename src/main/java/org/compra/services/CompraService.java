@@ -35,10 +35,11 @@ public class CompraService {
     }
 
 
-    public Compra updateCompra(Long idProducto, Long idCompra, Compra compra) {
+    public Compra updateCompra(Long IdCliente, Long idProducto, Long idCompra, Compra compra) {
         String apiDeValen = "http://localhost:8070/productos/"+compra.getIdProducto();
-        if(restTemplate.getForEntity(apiDeValen, String.class)!=null){
-            Compra c=compraRepository.findById(idProducto, idCompra);
+        String APICliente = "http://localhost:8010/clientes/"+compra.getIdCliente();
+        if(restTemplate.getForEntity(apiDeValen, String.class)!=null && restTemplate.getForEntity(APICliente, String.class)!=null){
+            Compra c=compraRepository.findById(idProducto, IdCliente);
             if(c!=null) {
                 c.setCantidad(compra.getCantidad());
                 c.setFecha(compra.getFecha());
