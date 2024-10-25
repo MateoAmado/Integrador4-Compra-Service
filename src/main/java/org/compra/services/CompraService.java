@@ -5,6 +5,7 @@ import org.compra.repository.CompraRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -28,16 +29,17 @@ public class CompraService {
 
     public Compra save(Compra compra) {
         String apiDeValen = "http://localhost:8070/productos/"+compra.getIdProducto();
-        if(restTemplate.getForEntity(apiDeValen, String.class)!=null){
+        String apiDeMate = "http://localhost:8010/clientes/"+compra.getIdCliente();
+        if(restTemplate.getForEntity(apiDeValen, String.class)!=null && restTemplate.getForEntity(apiDeMate, String.class)!=null){
             return compraRepository.save(compra);
         }
         return null;
     }
 
-
     public Compra updateCompra(Long idProducto, Long idCompra, Compra compra) {
         String apiDeValen = "http://localhost:8070/productos/"+compra.getIdProducto();
-        if(restTemplate.getForEntity(apiDeValen, String.class)!=null){
+        String apiDeMate = "http://localhost:8010/clientes/"+compra.getIdCliente();
+        if(restTemplate.getForEntity(apiDeValen, String.class)!=null && restTemplate.getForEntity(apiDeMate, String.class)!=null){
             Compra c=compraRepository.findById(idProducto, idCompra);
             if(c!=null) {
                 c.setCantidad(compra.getCantidad());
