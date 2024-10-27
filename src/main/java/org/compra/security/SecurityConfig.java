@@ -21,8 +21,12 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/").hasAnyRole("USER", "ADMIN") // Ajusta según sea necesario
-                        .anyRequest().authenticated()
+                        .requestMatchers(
+                                "/v3/api-docs/**",     // Documentación OpenAPI
+                                "/swagger-ui/**",      // Recursos de Swagger UI
+                                "/swagger-ui.html"     // Página principal de Swagger UI
+                        ).permitAll()
+                        .anyRequest().hasAnyRole("USER", "ADMIN")
                 )
                 .addFilterBefore(externalTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
