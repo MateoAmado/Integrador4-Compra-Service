@@ -54,8 +54,8 @@ public class CompraController {
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @PostMapping
-    public ResponseEntity<Compra> postCompra(@RequestBody Compra compra) {
-        Compra compraGuardada = compraService.save(compra);
+    public ResponseEntity<Compra> postCompra(@RequestBody Compra compra, jakarta.servlet.http.HttpServletRequest request) {
+        Compra compraGuardada = compraService.save(compra, request);
         if(compraGuardada != null) {
             return ResponseEntity.ok(compraGuardada);
         }
@@ -69,8 +69,8 @@ public class CompraController {
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @PutMapping("/{idProducto}/{idCliente}")
-    public ResponseEntity<Compra> updateCompra(@PathVariable Long idProducto, @PathVariable Long idCompra, @RequestBody Compra compra){
-        Compra c=compraService.updateCompra(idProducto, idCompra, compra);
+    public ResponseEntity<Compra> updateCompra(@PathVariable Long idProducto, @PathVariable Long idCliente, @RequestBody Compra compra, jakarta.servlet.http.HttpServletRequest request){
+        Compra c=compraService.updateCompra(idProducto, idCliente, compra, request);
         if(c!=null){
             return new ResponseEntity<>(c, HttpStatus.OK);
         }
@@ -84,8 +84,9 @@ public class CompraController {
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @DeleteMapping("/{idProducto}/{idCliente}")
-    public ResponseEntity<Compra> deleteCompra(@PathVariable Long idProducto, @PathVariable Long idCompra){
-        Compra c=compraService.deleteCompra(idProducto, idCompra);
+    public ResponseEntity<Compra> deleteCompra(@PathVariable Long idProducto, @PathVariable Long idCliente){
+        System.out.println("Entro al metodo");
+        Compra c=compraService.deleteCompra(idProducto, idCliente);
         if(c!=null){
             return new ResponseEntity<>(c, HttpStatus.NO_CONTENT);
         }
