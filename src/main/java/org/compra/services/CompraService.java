@@ -1,5 +1,8 @@
 package org.compra.services;
 
+import org.compra.dto.Cliente;
+import org.compra.dto.Producto;
+import org.compra.dto.compraClienteDto;
 import org.compra.model.Compra;
 import org.compra.repository.CompraRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class CompraService {
@@ -64,6 +71,105 @@ public class CompraService {
                 entity,
                 String.class);
 
+    }
+
+    public Map<String, Double> getInformeClientesMonto(jakarta.servlet.http.HttpServletRequest request){
+        Map<String, Double> totalComprasPorCliente = new HashMap<>();
+
+
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Token de autorización no encontrado o inválido");
+        }
+        String token = authHeader.substring(7);
+
+        HttpHeaders headers = createHeaders(token);
+        HttpEntity<String> entity = new HttpEntity<>(null, headers);
+
+        // Iterar sobre todas las compras y construir el reporte
+        List<Compra> compras = compraRepository.findAll();
+        for (Compra compra : compras) {
+
+            // Obtén la información del cliente
+            ResponseEntity<Cliente> clienteResponse = restTemplate.exchange(
+                    "http://localhost:8010/clientes/" + compra.getIdCliente(),
+                    HttpMethod.GET,
+                    entity,
+                    Cliente.class
+            );
+            Cliente cliente = clienteResponse.getBody();
+
+            // Obtén la información del producto
+            ResponseEntity<Producto> productoResponse = restTemplate.exchange(
+                    "http://localhost:8070/productos/" + compra.getIdProducto(),
+                    HttpMethod.GET,
+                    entity,
+                    Producto.class
+            );
+            Producto producto = productoResponse.getBody();
+
+            // Calcula el total de la compra (cantidad * precio del producto)
+            double totalCompra = compra.getCantidad() * producto.getValor();
+
+            // Sumar al total acumulado del cliente
+            totalComprasPorCliente.merge(cliente.getNombre(), totalCompra, Double::sum);
+        }
+        return totalComprasPorCliente;
+    }
+
+
+    public Map<LocalDate, Double> generarReporteVentasPorDia(jakarta.servlet.http.HttpServletRequest request) {
+        Map<LocalDate, Double> ventasPorDia = new HashMap<>();
+
+        // Obtén el token de autorización
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Token de autorización no encontrado o inválido");
+        }
+        String token = authHeader.substring(7);
+
+        HttpHeaders headers = createHeaders(token);
+        HttpEntity<String> entity = new HttpEntity<>(null, headers);
+
+        // Obtén todas las compras
+        List<Compra> compras = compraRepository.findAll();
+
+        for (Compra compra : compras) {
+            // Obtén el precio del producto
+            ResponseEntity<Producto> productoResponse = restTemplate.exchange(
+                    "http://localhost:8070/productos/" + compra.getIdProducto(),
+                    HttpMethod.GET,
+                    entity,
+                    Producto.class
+            );
+            Producto producto = productoResponse.getBody();
+
+            // Calcula el total de la compra
+            double totalCompra = compra.getCantidad() * producto.getValor();
+
+            // Convierte la fecha de java.sql.Date a java.time.LocalDate
+            LocalDate fechaCompra = compra.getFecha().toLocalDate();
+
+            // Suma el total de la compra al día correspondiente
+            ventasPorDia.merge(fechaCompra, totalCompra, Double::sum);
+        }
+        return ventasPorDia;
+    }
+
+
+    public Optional<String> obtenerProductoMasVendido(jakarta.servlet.http.HttpServletRequest request) {
+        // Realiza la consulta para obtener el producto más vendido
+        List<Object[]> resultados = compraRepository.productoMasVendido();
+
+        if (!resultados.isEmpty()) {
+            Object[] productoMasVendido = resultados.get(0);
+            Long idProducto = (Long) productoMasVendido[0];
+            Long cantidadVendida = (Long) productoMasVendido[1];
+
+            return Optional.of("Producto ID: " + idProducto + ", Cantidad Vendida: " + cantidadVendida);
+        } else {
+            return Optional.empty();
+        }
     }
 
     public Compra updateCompra(Long idProducto, Long idCliente, Compra compra, jakarta.servlet.http.HttpServletRequest request) {

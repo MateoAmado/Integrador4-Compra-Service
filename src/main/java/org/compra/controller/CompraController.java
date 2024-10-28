@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.compra.dto.compraClienteDto;
 import org.compra.model.Compra;
 import org.compra.services.CompraService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/compras")
@@ -32,7 +36,54 @@ public class CompraController {
         return new ResponseEntity<>(compras, HttpStatus.OK);
     }
 
-    @Operation(summary = "Obtener compra por id", description = "Devuelve la compra solicitada mediante el idProducto e idCliente")
+    @Operation(summary = "Obtener informe de montos por cliente", description = "Devuelve un informe con el monto total de compras realizadas por cada cliente.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Informe generado con éxito"),
+            @ApiResponse(responseCode = "500", description = "Error al generar el informe")
+    })
+    @GetMapping("/informe")
+    public ResponseEntity<Map<String, Double>> obtenerInforme(jakarta.servlet.http.HttpServletRequest request) {
+        try {
+            Map<String, Double> informeMontosCliente = compraService.getInformeClientesMonto(request);
+            return ResponseEntity.ok(informeMontosCliente);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @Operation(summary = "Obtener el producto más vendido", description = "Devuelve el producto que ha sido más vendido y su cantidad total.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Producto más vendido obtenido con éxito"),
+            @ApiResponse(responseCode = "404", description = "No se encontró información de productos vendidos"),
+            @ApiResponse(responseCode = "500", description = "Error al obtener el producto más vendido")
+    })
+    @GetMapping("/masVendido")
+    public ResponseEntity<String> getMasVendido(jakarta.servlet.http.HttpServletRequest request) {
+        try {
+            Optional<String> masVendido = compraService.obtenerProductoMasVendido(request);
+            return masVendido.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @Operation(summary = "Obtener informe de ventas por día", description = "Devuelve un informe con el monto total de ventas realizadas cada día.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Informe de ventas por día generado con éxito"),
+            @ApiResponse(responseCode = "500", description = "Error al generar el informe de ventas por día")
+    })
+    @GetMapping("/informeDia")
+    public ResponseEntity<Map<LocalDate, Double>> obtenerInformePorDia(jakarta.servlet.http.HttpServletRequest request) {
+        try {
+            Map<LocalDate, Double> ventasPorDia = compraService.generarReporteVentasPorDia(request);
+            return ResponseEntity.ok(ventasPorDia);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+        @Operation(summary = "Obtener compra por id", description = "Devuelve la compra solicitada mediante el idProducto e idCliente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Compra obtenida con éxito"),
             @ApiResponse(responseCode = "404", description = "Compra no encontrada"),
