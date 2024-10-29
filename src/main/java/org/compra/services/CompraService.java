@@ -36,14 +36,14 @@ public class CompraService {
 
     public Compra save(Compra compra, jakarta.servlet.http.HttpServletRequest request) {
 
-        // Obtén el encabezado de autorización
+        
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            // Extrae el token
+           
             String token = authHeader.substring(7);
 
-            // Crea los encabezados para las solicitudes externas
+            
             HttpHeaders headers = createHeaders(token);
             HttpEntity<String> entity = new HttpEntity<>(null, headers);
 
@@ -52,14 +52,14 @@ public class CompraService {
 
             ResponseEntity<String> validationResponseP = validateReponse("http://localhost:8070/productos/" + compra.getIdProducto(), entity);
 
-            // Si ambas respuestas son exitosas, guarda la compra
+           
             if (validationResponseC.getStatusCode() == HttpStatus.OK &&
                     validationResponseP.getStatusCode() == HttpStatus.OK) {
                 return compraRepository.save(compra);
             }
         }
 
-        // Si el token no es válido o las validaciones fallan, devuelve null o lanza una excepción
+       
         throw new RuntimeException("No tienes permisos para realizar esta operación o el recurso no existe");
     }
 
@@ -86,11 +86,11 @@ public class CompraService {
         HttpHeaders headers = createHeaders(token);
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
 
-        // Iterar sobre todas las compras y construir el reporte
+       
         List<Compra> compras = compraRepository.findAll();
         for (Compra compra : compras) {
 
-            // Obtén la información del cliente
+            
             ResponseEntity<Cliente> clienteResponse = restTemplate.exchange(
                     "http://localhost:8010/clientes/" + compra.getIdCliente(),
                     HttpMethod.GET,
@@ -99,7 +99,7 @@ public class CompraService {
             );
             Cliente cliente = clienteResponse.getBody();
 
-            // Obtén la información del producto
+            
             ResponseEntity<Producto> productoResponse = restTemplate.exchange(
                     "http://localhost:8070/productos/" + compra.getIdProducto(),
                     HttpMethod.GET,
@@ -108,10 +108,10 @@ public class CompraService {
             );
             Producto producto = productoResponse.getBody();
 
-            // Calcula el total de la compra (cantidad * precio del producto)
+
             double totalCompra = compra.getCantidad() * producto.getValorEnPesos();
 
-            // Sumar al total acumulado del cliente
+            
             totalComprasPorCliente.merge(cliente.getNombre(), totalCompra, Double::sum);
         }
         return totalComprasPorCliente;
@@ -121,7 +121,7 @@ public class CompraService {
     public Map<LocalDate, Double> generarReporteVentasPorDia(jakarta.servlet.http.HttpServletRequest request) {
         Map<LocalDate, Double> ventasPorDia = new HashMap<>();
 
-        // Obtén el token de autorización
+       
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new RuntimeException("Token de autorización no encontrado o inválido");
@@ -131,11 +131,11 @@ public class CompraService {
         HttpHeaders headers = createHeaders(token);
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
 
-        // Obtén todas las compras
+        
         List<Compra> compras = compraRepository.findAll();
 
         for (Compra compra : compras) {
-            // Obtén el precio del producto
+            
             ResponseEntity<Producto> productoResponse = restTemplate.exchange(
                     "http://localhost:8070/productos/" + compra.getIdProducto(),
                     HttpMethod.GET,
@@ -144,13 +144,13 @@ public class CompraService {
             );
             Producto producto = productoResponse.getBody();
 
-            // Calcula el total de la compra
+
             double totalCompra = compra.getCantidad() * producto.getValorEnPesos();
 
-            // Convierte la fecha de java.sql.Date a java.time.LocalDate
+            
             LocalDate fechaCompra = compra.getFecha().toLocalDate();
 
-            // Suma el total de la compra al día correspondiente
+            
             ventasPorDia.merge(fechaCompra, totalCompra, Double::sum);
         }
         return ventasPorDia;
@@ -158,7 +158,7 @@ public class CompraService {
 
 
     public Optional<String> obtenerProductoMasVendido(jakarta.servlet.http.HttpServletRequest request) {
-        // Realiza la consulta para obtener el producto más vendido
+        
         List<Object[]> resultados = compraRepository.productoMasVendido();
 
         if (!resultados.isEmpty()) {
@@ -174,15 +174,15 @@ public class CompraService {
 
     public Compra updateCompra(Long idProducto, Long idCliente, Compra compra, jakarta.servlet.http.HttpServletRequest request) {
 
-        // Obtén el encabezado de autorización
+       
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            // Extrae el token
+            
 
             String token = authHeader.substring(7);
 
-            // Crea los encabezados para las solicitudes externas
+            
             HttpHeaders headers = createHeaders(token);
             HttpEntity<String> entity = new HttpEntity<>(null, headers);
 
@@ -191,7 +191,7 @@ public class CompraService {
 
             ResponseEntity<String> validationResponseP = validateReponse("http://localhost:8070/productos/" + idProducto, entity);
 
-            // Si ambas respuestas son exitosas, guarda la compra
+          
 
             if (validationResponseC.getStatusCode() == HttpStatus.OK &&
                     validationResponseP.getStatusCode() == HttpStatus.OK) {
