@@ -34,57 +34,28 @@ public class ExternalTokenAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-
             String token = authHeader.substring(7);
-
-            System.out.println(token);
-
             ResponseEntity<String> validationResponse = restTemplate.exchange(
-
                     "http://localhost:8090/auth/validateToken",
-
                     HttpMethod.POST,
-
                     new HttpEntity<>(null, createHeaders(token)),
-
                     String.class
-
             );
 
-            System.out.println(validationResponse);
-
             if (validationResponse.getStatusCode() == HttpStatus.OK) {
-
-                // Deserializa el cuerpo de la respuesta JSON a un Map
-
                 ObjectMapper objectMapper = new ObjectMapper();
-
                 Map<String, String> responseBody = objectMapper.readValue(validationResponse.getBody(), new TypeReference<Map<String, String>>() {});
-
-
-
-                String role = responseBody.get("role"); // Asegúrate de usar la clave correcta
-
+                String role = responseBody.get("role");
                 if (role != null) {
-
-                    role = "ROLE_" + role.toUpperCase(); // Convierte a mayúsculas y agrega el prefijo
-
+                    role = "ROLE_" + role.toUpperCase();
                     Authentication auth = new ExternalServiceAuthenticationToken(token, List.of(new SimpleGrantedAuthority(role)));
-
                     SecurityContextHolder.getContext().setAuthentication(auth);
-
                 }
-
             } else {
-
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-
                 return;
-
             }
-
         }
-
         filterChain.doFilter(request, response);
         }
 

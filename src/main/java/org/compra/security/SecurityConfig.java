@@ -22,9 +22,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/v3/api-docs/**",     // Documentación OpenAPI
-                                "/swagger-ui/**",      // Recursos de Swagger UI
-                                "/swagger-ui.html"     // Página principal de Swagger UI
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
                         ).permitAll()
                         .anyRequest().hasAnyRole("USER", "ADMIN")
                 )

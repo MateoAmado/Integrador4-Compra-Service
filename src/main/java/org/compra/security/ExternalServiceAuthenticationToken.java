@@ -16,7 +16,7 @@ public class ExternalServiceAuthenticationToken extends AbstractAuthenticationTo
         super(authorities);
         this.token = token;
         this.authorities = authorities;
-        setAuthenticated(true);  // Este token ahora está autenticado
+        setAuthenticated(true);
     }
 
     @Override
@@ -26,9 +26,8 @@ public class ExternalServiceAuthenticationToken extends AbstractAuthenticationTo
 
     @Override
     public Object getPrincipal() {
-        return null; // Aquí podrías devolver el usuario autenticado si lo deseas
+        return null;
     }
-
     @Override
     public Collection<GrantedAuthority> getAuthorities() {
         return this.authorities;

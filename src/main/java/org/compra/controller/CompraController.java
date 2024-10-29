@@ -28,7 +28,7 @@ public class CompraController {
     @Operation(summary = "Obtener todas las compras", description = "Devuelve una lista de todas las compras registradas")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de compras obtenida con éxito"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "400", description = "Error en la consulta")
     })
     @GetMapping()
     public ResponseEntity<List<Compra>> listar() {
@@ -128,7 +128,7 @@ public class CompraController {
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
-    @Operation(summary = "Obtener compra por id", description = "Devuelve la compra solicitada mediante el idProducto e idCliente")
+    @Operation(summary = "Eliminar compra por id", description = "Elimina la compra mediante el idProducto y el idCliente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "202", description = "Compra borrada con éxito"),
             @ApiResponse(responseCode = "404", description = "Compra no encontrada"),
