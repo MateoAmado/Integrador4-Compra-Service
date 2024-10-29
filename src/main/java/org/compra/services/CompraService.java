@@ -109,7 +109,7 @@ public class CompraService {
             Producto producto = productoResponse.getBody();
 
             // Calcula el total de la compra (cantidad * precio del producto)
-            double totalCompra = compra.getCantidad() * producto.getValor();
+            double totalCompra = compra.getCantidad() * producto.getValorEnPesos();
 
             // Sumar al total acumulado del cliente
             totalComprasPorCliente.merge(cliente.getNombre(), totalCompra, Double::sum);
@@ -145,7 +145,7 @@ public class CompraService {
             Producto producto = productoResponse.getBody();
 
             // Calcula el total de la compra
-            double totalCompra = compra.getCantidad() * producto.getValor();
+            double totalCompra = compra.getCantidad() * producto.getValorEnPesos();
 
             // Convierte la fecha de java.sql.Date a java.time.LocalDate
             LocalDate fechaCompra = compra.getFecha().toLocalDate();
